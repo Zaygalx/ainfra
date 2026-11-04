@@ -36,7 +36,7 @@ const publicClient = createPublicClient({ chain, transport: http() })
 const $ = id => document.getElementById(id)
 const log = msg => { const el = $('log'); el.textContent += (el.textContent ? '\n' : '') + msg }
 
-let account, wallet, fee, treasury, predicted, busy = false
+let account, wallet, fee, treasury, predicted, deadline, busy = false
 
 async function connect() {
   if (!window.ethereum) return log('No browser wallet found. Open this page inside your wallet app browser, or install one.')
@@ -68,7 +68,8 @@ async function loadState() {
   ])
   if (p) throw new Error('Factory is paused, launches revert right now.')
   fee = f; treasury = t
-  predicted = await publicClient.readContract({ address: FACTORY, abi, functionName: 'predictToken', args: [account, params(BigInt(Math.floor(Date.now()/1000) + 1200))] })
+  if (!deadline || deadline < BigInt(Math.floor(Date.now()/1000) + 120)) deadline = BigInt(Math.floor(Date.now()/1000) + 3600)
+  predicted = await publicClient.readContract({ address: FACTORY, abi, functionName: 'predictToken', args: [account, params(deadline)] })
   $('fee').textContent = formatEther(fee) + ' ETH'
   $('token').textContent = predicted
   $('tokenlink').href = EXPLORER + '/address/' + predicted
@@ -100,7 +101,7 @@ async function launch() {
   busy = true; render()
   try {
     if (predicted && await publicClient.getCode({ address: predicted }) !== undefined) throw new Error('This token address is already deployed. Salt already used.')
-    const deadline = BigInt(Math.floor(Date.now()/1000) + 1200)
+    if (!deadline || deadline < BigInt(Math.floor(Date.now()/1000) + 60)) await loadState()
     const p = params(deadline)
     const f = await publicClient.readContract({ address: FACTORY, abi, functionName: 'creationFee' })
     log('Confirm one transaction in your wallet: ' + formatEther(f) + ' ETH to the Integral factory.')
