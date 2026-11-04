@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AINFRA launch, AI Infrastructure Index</title>
+<style>
+  :root { color-scheme: dark; --bg:#0a1020; --panel:#111a2c; --line:#1e2b44; --ink:#e6edf7; --mut:#8b9bb4; --acc:#3fb950; --blue:#58a6ff; }
+  * { box-sizing: border-box }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+  main { max-width:640px; margin:0 auto; padding:24px 18px 64px; }
+  header { display:flex; gap:14px; align-items:center; margin-bottom:22px; }
+  header img { width:56px; height:56px; border-radius:12px; }
+  h1 { font-size:22px; margin:0; letter-spacing:-.02em; }
+  .sub { color:var(--mut); font-size:14px; margin:2px 0 0; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px; margin:14px 0; }
+  .row { display:flex; justify-content:space-between; gap:12px; padding:7px 0; border-bottom:1px solid rgba(255,255,255,.04); font-size:14px; }
+  .row:last-child { border-bottom:0 }
+  .row span:first-child { color:var(--mut) }
+  .row span:last-child { text-align:right; word-break:break-all; }
+  code, .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; }
+  button { width:100%; border:0; border-radius:12px; padding:15px 16px; font-size:16px; font-weight:650; cursor:pointer; margin-top:10px; }
+  #connect { background:var(--blue); color:#06101f; }
+  #go { background:var(--acc); color:#04130a; }
+  button:disabled { opacity:.45; cursor:not-allowed; }
+  .step { display:flex; gap:10px; margin:10px 0; color:var(--mut); font-size:14px; }
+  .step .n { width:22px; height:22px; border-radius:50%; border:1px solid var(--line); display:grid; place-items:center; flex:none; font-size:12px; }
+  .step.done .n { background:var(--acc); color:#04130a; border-color:var(--acc); }
+  .step.done { color:var(--ink) }
+  #log { white-space:pre-wrap; font-family:ui-monospace,monospace; font-size:12px; color:var(--mut); margin-top:12px; min-height:18px; }
+  #warn { display:none; background:#3d1d1d; border:1px solid #8b2f2f; color:#ffb4b4; border-radius:10px; padding:12px; font-size:14px; margin-top:12px; }
+  #done { display:none; border-color:var(--acc); }
+  a { color:var(--blue) }
+  .fine { color:var(--mut); font-size:12px; margin-top:18px; }
+  .pill { display:inline-block; background:#12281a; color:var(--acc); border:1px solid #1f4d2c; padding:3px 8px; border-radius:999px; font-size:11px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img src="ainfra.png" alt="AINFRA">
+    <div>
+      <h1>AI Infrastructure Index</h1>
+      <p class="sub">NVDA 30 · AVGO 20 · MU 20 · PLTR 15 · CRWV 15</p>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="row"><span>Symbol</span><span>AINFRA</span></div>
+    <div class="row"><span>Opening valuation</span><span>$8,000 FDV, same on all five pools</span></div>
+    <div class="row"><span>Trade fee split</span><span>30% treasury · 35% creator · 28% holders · 7% liquidity</span></div>
+    <div class="row"><span>Factory</span><span class="mono">0x685d4ACEe100de257b706240FF1fEd78606cD7D0</span></div>
+    <div class="row"><span>Network</span><span>Robinhood Chain, 4663</span></div>
+  </div>
+
+  <div class="card">
+    <div class="step" id="step1"><div class="n">1</div><div>Connect the wallet that will own the creator share. <span class="mono" id="addr"></span></div></div>
+    <div class="step" id="step2"><div class="n">2</div><div>Check the numbers. Fee <span class="mono" id="fee">…</span> · balance <span class="mono" id="bal">…</span></div></div>
+    <div class="step" id="step3"><div class="n">3</div><div>Sign one transaction. Token address <a id="tokenlink" target="_blank" rel="noopener"><span class="mono" id="token">…</span></a></div></div>
+    <div id="warn">This wallet does not hold enough ETH on Robinhood Chain for the creation fee. Bridge or withdraw ETH to this address on chain 4663 first.</div>
+    <button id="connect">Connect wallet</button>
+    <button id="go" disabled>Launch index</button>
+    <div id="log"></div>
+    <a id="tx" style="display:none" target="_blank" rel="noopener">View transaction</a>
+  </div>
+
+  <div class="card" id="done">
+    <div class="row"><span>Status</span><span class="pill">Deployed</span></div>
+    <div class="row"><span>Trade</span><span><a id="tradelink" target="_blank" rel="noopener">Open on Integral</a></span></div>
+  </div>
+
+  <p class="fine">This page builds exactly one call: <span class="mono">launch(...)</span> on the Integral factory, paid with the creation fee. It cannot move any other asset from your wallet. Read the transaction your wallet shows before you confirm. Tokenized stocks carry issuer, market hours and liquidity risk. Not investment advice.</p>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
